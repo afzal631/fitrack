@@ -1901,16 +1901,11 @@ function xlLoad(file){
       const ab=ev.target.result;
       const wb=XLSX.read(ab,{type:"array"});
       if(wb.SheetNames.includes(XL_SHEET_EXPENSES)||wb.SheetNames.includes(XL_SHEET_META)){
-        if(!confirm("This will replace all current data with data from the Excel file. Continue?"))return;
-        profile={...DEFAULT_PROFILE};
-        expCats=DEFAULT_EXP.map(x=>({...x}));
-        invCats=DEFAULT_INV.map(x=>({...x}));
-        db=initDB();
-        dailyEntries={};
+        // Import directly — no reset, data from Excel is loaded as-is
         xlImportFromWorkbook(wb);
-        saveState(); // persist imported data to localStorage
-        showToast("Data imported from Excel!");
-        xlSetStatus('<i class="ti ti-check"></i> Import successful — data saved to device',"ok");
+        saveState(); // persist imported data to localStorage immediately
+        showToast("Excel data loaded!");
+        xlSetStatus('<i class="ti ti-check"></i> Data loaded from Excel and saved to device',"ok");
         render();
       } else {
         showToast("No FinTrack data found in this file");
@@ -1995,7 +1990,6 @@ function xlImportFromWorkbook(wb){
     });
   }
   db=ensureDB(db);
-  render();
 }
 
 // ── Build workbook from current app state ──
