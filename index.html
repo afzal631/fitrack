@@ -497,6 +497,154 @@ html,body{height:100%;width:100%;background:#0a0a0f;margin:0;padding:0;overflow:
 .month-nav-btn:hover{background:var(--card2);color:var(--t1)}
 .month-nav-btn:active{transform:scale(.93)}
 .month-nav-label{flex:1;text-align:center;font-size:13px;font-weight:800;color:var(--t1)}
+
+/* ─── COLLAPSIBLE CALENDAR ─── */
+.cal-collapse-btn{
+  width:32px;height:32px;border-radius:9px;
+  background:var(--bg3);border:1px solid var(--bd2);
+  color:var(--t2);font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;flex-shrink:0;
+}
+.cal-collapse-btn:active{transform:scale(.9)}
+.cal-collapsible{overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1),opacity .25s;max-height:400px;opacity:1}
+.cal-collapsible.collapsed{max-height:0;opacity:0}
+
+/* ─── DAILY ENTRY FORM ─── */
+.add-exp-form{
+  background:var(--bg2);
+  border:1px solid var(--bd2);
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:10px;
+}
+.add-exp-form-title{
+  font-size:11px;font-weight:800;color:var(--acc);
+  text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.exp-field-row{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.exp-field-label{font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.exp-text-inp{
+  width:100%;background:var(--bg3);border:1px solid var(--bd2);
+  border-radius:10px;padding:9px 11px;
+  font-size:12px;font-weight:600;color:var(--t1);
+  outline:none;transition:all .2s;font-family:'Sora',sans-serif;
+}
+.exp-text-inp:focus{box-shadow:0 0 0 2px var(--acc)50;border-color:var(--acc)60;background:var(--bg4)}
+.exp-text-inp::placeholder{color:var(--t3);font-weight:500}
+.exp-cat-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+}
+.exp-cat-chip{
+  padding:7px 5px;border-radius:10px;
+  background:var(--bg3);border:1px solid var(--bd);
+  cursor:pointer;transition:all .18s;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:9px;font-weight:700;color:var(--t2);
+  text-align:center;letter-spacing:.02em;
+  min-height:52px;justify-content:center;
+}
+.exp-cat-chip i{font-size:16px;margin-bottom:1px}
+.exp-cat-chip.selected{border-color:currentColor;font-weight:800}
+.exp-cat-chip:active{transform:scale(.93)}
+.exp-amount-row{display:flex;gap:8px;align-items:flex-end}
+.exp-amount-inp{
+  flex:1;background:var(--bg3);border:1px solid var(--bd2);
+  border-radius:10px;padding:9px 11px;
+  font-size:15px;font-weight:800;color:var(--t1);
+  outline:none;transition:all .2s;
+  font-family:'JetBrains Mono',monospace;
+}
+.exp-amount-inp:focus{box-shadow:0 0 0 2px var(--acc)50;border-color:var(--acc)60;background:var(--bg4)}
+.exp-amount-inp::placeholder{color:var(--t3);font-weight:500}
+.btn-add-entry{
+  padding:10px 16px;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  color:#000;border:none;border-radius:10px;
+  font-size:12px;font-weight:800;cursor:pointer;
+  letter-spacing:.02em;transition:all .2s;
+  box-shadow:0 3px 12px var(--acc)40;
+  font-family:'Sora',sans-serif;white-space:nowrap;flex-shrink:0;
+  display:flex;align-items:center;gap:5px;
+}
+.btn-add-entry:active{transform:scale(.96)}
+.btn-add-entry:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ─── ENTRY LIST ─── */
+.entry-list{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.entry-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
+  background:var(--bg2);border:1px solid var(--bd);
+  border-radius:12px;transition:all .18s;
+}
+.entry-item:active{background:var(--bg3)}
+.entry-cat-ico{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.entry-info{flex:1;min-width:0}
+.entry-cat{font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-desc{font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.entry-time{font-size:9px;color:var(--t3);margin-top:2px}
+.entry-amt{font-size:14px;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.entry-del{
+  width:26px;height:26px;border-radius:7px;flex-shrink:0;
+  background:var(--red2);color:var(--red);
+  border:1px solid var(--red)20;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:12px;transition:all .2s;
+}
+.entry-del:active{transform:scale(.88)}
+.entry-empty{
+  text-align:center;padding:20px 0;
+  color:var(--t3);font-size:11px;font-weight:500;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.entry-empty i{font-size:28px;opacity:.5}
+
+/* ─── DAY HISTORY IN SUMMARY ─── */
+.day-history-item{
+  border-bottom:1px solid var(--bd);padding:8px 0;
+}
+.day-history-item:last-child{border-bottom:none}
+.day-hist-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:8px}
+.day-hist-date{font-size:11px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:5px}
+.day-hist-date i{font-size:12px;color:var(--acc)}
+.day-hist-total{font-size:11px;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace}
+.day-hist-entries{padding:6px 0 0 8px;display:flex;flex-direction:column;gap:4px}
+.day-hist-entry{display:flex;align-items:center;gap:7px}
+.day-hist-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.day-hist-desc{font-size:10px;color:var(--t2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.day-hist-amt{font-size:10px;font-weight:700;color:var(--t1);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+
+/* ─── SUMMARY CALENDAR ─── */
+.sum-cal-filter{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px 10px;
+  border-top:1px solid var(--bd);
+  gap:8px;
+}
+.sum-cal-filter-label{font-size:12px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px}
+.sum-cal-filter-label i{color:var(--acc);font-size:13px}
+.sum-cal-clear{
+  padding:4px 10px;border-radius:20px;
+  background:var(--bg3);border:1px solid var(--bd2);
+  color:var(--t2);font-size:9px;font-weight:700;cursor:pointer;
+  transition:all .2s;letter-spacing:.04em;text-transform:uppercase;
+  display:flex;align-items:center;gap:4px;
+}
+.sum-cal-clear:hover{background:var(--bg4);color:var(--t1)}
+.sum-cal-clear:active{transform:scale(.93)}
+.sum-cal-filter-total{font-size:12px;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace}
+
+/* ─── MONTH SELECTOR IN SUMMARY ─── */
+.sum-month-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:10px}
+.sum-month-tabs::-webkit-scrollbar{display:none}
+.sum-mtab{padding:5px 12px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--bd);background:transparent;color:var(--t3);white-space:nowrap;flex-shrink:0;transition:all .2s;letter-spacing:.02em}
+.sum-mtab.on{background:var(--acc);color:#000;border-color:var(--acc);box-shadow:0 0 8px var(--acc)40;font-weight:800}
 </style>
 </head>
 <body>
@@ -569,24 +717,21 @@ const DEFAULT_INV=[
 ];
 
 // ─────────────────── PERSISTENCE ───────────────────
-function loadState(){
-  try{const raw=localStorage.getItem("ft_state_v4");if(raw)return JSON.parse(raw);}catch(e){}
-  return null;
+// Only UI preferences (no financial data) stored in localStorage — tiny footprint
+const UI_KEY="ft_ui_v1";
+function loadUI(){
+  try{const r=localStorage.getItem(UI_KEY);return r?JSON.parse(r):{};}catch(e){return{};}
 }
-function saveState(){
-  const s={profile,expCats,invCats,db,tab,selM,selDate,startM,dark};
-  try{localStorage.setItem("ft_state_v4",JSON.stringify(s));}catch(e){}
+function saveUI(){
+  try{localStorage.setItem(UI_KEY,JSON.stringify({selM,selDate,startM,dark,calCollapsed,sumSelM,sumSelDate}));}catch(e){}
 }
+// saveState = alias so existing call sites just save UI prefs
+function saveState(){saveUI();}
 
-// DB uses "MonthName-date" keys e.g. "Jan-1", "Jan-15"
+// DB uses numeric day keys; only needed for investments now
 function initDB(){
   const d={};
-  MONTHS.forEach(m=>{
-    d[m]={};
-    for(let day=1;day<=31;day++){
-      d[m][day]={exp:{},inv:{}};
-    }
-  });
+  MONTHS.forEach(m=>{d[m]={};for(let day=1;day<=31;day++)d[m][day]={exp:{},inv:{}};});
   return d;
 }
 function ensureDB(d){
@@ -602,29 +747,21 @@ function ensureDB(d){
 }
 
 // ─────────────────── LOAD STATE ───────────────────
-let saved=loadState();
-// Migrate old day-name based DB if needed
-function migrateOldDB(old){
-  if(!old)return null;
-  // Check if old DB uses day names (Mon/Tue...)
-  const firstM=old["Jan"];
-  if(firstM&&firstM["Mon"]!==undefined){
-    console.log("Migrating old DB to date-based...");
-    return null; // start fresh
-  }
-  return old;
-}
-let profile=saved?.profile||{...DEFAULT_PROFILE};
-let expCats=saved?.expCats||DEFAULT_EXP.map(x=>({...x}));
-let invCats=saved?.invCats||DEFAULT_INV.map(x=>({...x}));
-let rawDB=saved?.db?migrateOldDB(saved.db):null;
-let db=rawDB||initDB();
-db=ensureDB(db);
+const ui=loadUI();
+let profile={...DEFAULT_PROFILE};
+let expCats=DEFAULT_EXP.map(x=>({...x}));
+let invCats=DEFAULT_INV.map(x=>({...x}));
+let db=initDB();
+// dailyEntries: { "Jan-5": [{id, cat, desc, amount, time}, ...] }
+let dailyEntries={};
 let tab=0;
-let selM=saved?.selM||NOW_M;
-let selDate=saved?.selDate||NOW_DATE; // 1-31
-let startM=saved?.startM||null;
-let dark=saved?.dark!==undefined?saved.dark:profile.darkMode;
+let selM=ui.selM||NOW_M;
+let selDate=ui.selDate||NOW_DATE;
+let startM=ui.startM||null;
+let dark=ui.dark!==undefined?ui.dark:DEFAULT_PROFILE.darkMode;
+let calCollapsed=ui.calCollapsed||false;
+let sumSelM=ui.sumSelM||NOW_M;
+let sumSelDate=ui.sumSelDate||null; // null = show all days for selected month
 
 // ─────────────────── HELPERS ───────────────────
 function fmt(n){return(profile.currency||"₹")+Math.round(n).toLocaleString("en-IN")}
@@ -643,8 +780,10 @@ function showToast(msg="Saved"){
 }
 
 // ─────────────────── TOTALS ───────────────────
+function getDayKey(m,d){return m+"-"+d;}
+function getDayEntries(m,d){return dailyEntries[getDayKey(m,d)]||[];}
 function totalExpDate(m,date){
-  return expCats.reduce((s,x)=>s+(db[m]?.[date]?.exp?.[x.k]||0),0);
+  return getDayEntries(m,date).reduce((s,e)=>s+e.amount,0);
 }
 function totalExpM(m){
   let total=0;
@@ -655,8 +794,13 @@ function totalExpM(m){
 function totalCatM(m,key){
   let total=0;
   const days=daysInMonth(MONTHS.indexOf(m));
-  for(let d=1;d<=days;d++)total+=(db[m]?.[d]?.exp?.[key]||0);
+  for(let d=1;d<=days;d++){
+    total+=getDayEntries(m,d).filter(e=>e.cat===key).reduce((s,e)=>s+e.amount,0);
+  }
   return total;
+}
+function totalCatDate(m,d,key){
+  return getDayEntries(m,d).filter(e=>e.cat===key).reduce((s,e)=>s+e.amount,0);
 }
 function totalInvDate(m,date){
   return invCats.reduce((s,x)=>s+(db[m]?.[date]?.inv?.[x.k]||0),0);
@@ -745,15 +889,22 @@ function calendarWidget(mode){
   return`<div class="cal-widget">
     <div class="cal-header">
       <div class="cal-header-title"><i class="ti ti-calendar" style="color:var(--acc);font-size:15px"></i>${MONTH_FULL[mIdx]}</div>
-      <div class="cal-nav">
-        <div class="cal-nav-btn" onclick="${changeMonthFn}('${MONTHS[(mIdx-1+12)%12]}')"><i class="ti ti-chevron-left"></i></div>
-        <div class="cal-nav-btn" onclick="${changeMonthFn}('${MONTHS[(mIdx+1)%12]}')"><i class="ti ti-chevron-right"></i></div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="cal-nav">
+          <div class="cal-nav-btn" onclick="${changeMonthFn}('${MONTHS[(mIdx-1+12)%12]}')"><i class="ti ti-chevron-left"></i></div>
+          <div class="cal-nav-btn" onclick="${changeMonthFn}('${MONTHS[(mIdx+1)%12]}')"><i class="ti ti-chevron-right"></i></div>
+        </div>
+        <div class="cal-collapse-btn" onclick="toggleCalendar()" title="${calCollapsed?'Show':'Hide'} calendar">
+          <i class="ti ${calCollapsed?'ti-chevron-down':'ti-chevron-up'}"></i>
+        </div>
       </div>
     </div>
-    <div class="cal-months">${monthChips}</div>
-    <div class="cal-grid-wrap">
-      <div class="cal-dow">${dowCells}</div>
-      <div class="cal-dates">${cells}</div>
+    <div class="cal-collapsible${calCollapsed?" collapsed":""}">
+      <div class="cal-months">${monthChips}</div>
+      <div class="cal-grid-wrap">
+        <div class="cal-dow">${dowCells}</div>
+        <div class="cal-dates">${cells}</div>
+      </div>
     </div>
     <div class="cal-selected-label">
       <div class="cal-sel-date"><i class="ti ti-calendar-event"></i>${dateLabel}</div>
@@ -1016,12 +1167,62 @@ function renderExp(){
   const totM=totalExpM(selM);
   const idealTot=totalIdealExp();
   const overAll=totM>idealTot;
+  const entries=getDayEntries(selM,selDate);
+
+  // Category grid for the add-form
+  const catGrid=expCats.map((x,i)=>`
+    <div class="exp-cat-chip" id="catChip-${i}" onclick="selectExpCat(${i})" style="color:${x.col}">
+      <i class="ti ${x.ic}"></i>
+      <span>${x.k}</span>
+    </div>`).join("");
+
+  // Entry list for today
+  const entryHTML=entries.length===0
+    ? `<div class="entry-empty"><i class="ti ti-receipt-off"></i><span>No expenses yet for ${selDate} ${selM}</span></div>`
+    : entries.map((e,idx)=>{
+        const cat=expCats.find(c=>c.k===e.cat)||{ic:"ti-circle-dot",col:"#9090b0",k:e.cat};
+        return`<div class="entry-item">
+          <div class="entry-cat-ico" style="background:${cat.col}20"><i class="ti ${cat.ic}" style="color:${cat.col}"></i></div>
+          <div class="entry-info">
+            <div class="entry-cat">${cat.k}</div>
+            <div class="entry-desc">${e.desc||"—"}</div>
+            ${e.time?`<div class="entry-time">${e.time}</div>`:""}
+          </div>
+          <div class="entry-amt">${fmt(e.amount)}</div>
+          <div class="entry-del" onclick="deleteEntry('${getDayKey(selM,selDate)}',${idx})"><i class="ti ti-x"></i></div>
+        </div>`;
+      }).join("");
+
+  // Per-category progress rows (today's spend per cat vs monthly limit)
+  const catRows=expCats.map((x,idx)=>{
+    const dayVal=totalCatDate(selM,selDate,x.k);
+    const mTot=totalCatM(selM,x.k);
+    const lim=x.limit||0;
+    const dayOver=lim>0&&dayVal>lim;
+    const monOver=lim>0&&mTot>lim;
+    const wpct=lim>0?clamp(pct(mTot,lim),0,100):0;
+    const barCol=monOver?"var(--red)":wpct>80?"var(--amb)":"var(--acc)";
+    return`<div class="inp-row${monOver?" over":""}" id="crow-${idx}">
+      <div class="ico" style="background:${x.col}20"><i class="ti ${x.ic}" style="color:${x.col}"></i></div>
+      <div class="inp-info">
+        <div class="inp-name" style="${monOver?"color:var(--red)":""}">${x.k}</div>
+        <div class="inp-meta${monOver?" over-text":""}">
+          <span>Today: ${fmt(dayVal)}</span>
+          <span style="color:var(--t4)">|</span>
+          <span style="color:${monOver?"var(--red)":"var(--t3)"}">Month: ${fmt(mTot)} / ${fmt(lim)}</span>
+        </div>
+        <div class="pbar"><div class="pfill${monOver?" over":""}" style="width:${wpct}%;background:${barCol};${monOver?"box-shadow:0 0 7px var(--red)40":""}"></div></div>
+        ${monOver?`<div class="overspend-warn"><i class="ti ti-alert-triangle" style="font-size:10px"></i>Month over by ${fmt(mTot-lim)}</div>`:""}
+      </div>
+    </div>`;
+  }).join("");
 
   return`<div class="fade-in">
+  ${!xlFile?noFileBanner():""}
   ${calendarWidget("exp")}
 
   <div class="g2">
-    <div class="kpi"><div class="kpi-lbl">Day total</div><div class="kpi-val r" style="font-size:15px">${fmt(totD)}</div><div class="kpi-sub">${selDate} ${selM}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Day total</div><div class="kpi-val r" style="font-size:15px">${fmt(totD)}</div><div class="kpi-sub">${selDate} ${selM} · ${entries.length} item${entries.length!==1?"s":""}</div></div>
     <div class="kpi">
       <div class="kpi-lbl">Month total</div>
       <div class="kpi-val r" style="font-size:15px">${fmt(totM)}</div>
@@ -1037,46 +1238,57 @@ function renderExp(){
     </div>
   </div>`:""}
 
-  <div class="card">
-    <div class="card-hdr" style="padding-bottom:4px">
-      <div class="card-hdr-title"><i class="ti ti-pencil" style="color:var(--red)"></i>Enter spending</div>
-      <span class="pill ${overAll?"pill-r":"pill-g"}">${overAll?"Over":"On track"}</span>
+  <!-- ADD EXPENSE FORM -->
+  <div class="add-exp-form">
+    <div class="add-exp-form-title"><i class="ti ti-plus"></i>Add expense — ${selDate} ${selM}</div>
+    <div class="exp-field-row">
+      <div class="exp-field-label">Description</div>
+      <input class="exp-text-inp" id="expDesc" type="text" placeholder="What did you spend on?" maxlength="60">
     </div>
-    <div class="card-body" style="padding-top:6px" id="exp-inputs">
-      ${expCats.map((x,idx)=>{
-        const val=db[selM]?.[selDate]?.exp?.[x.k]||0;
-        const mTot=totalCatM(selM,x.k);
-        const lim=x.limit||0;
-        // Progress bar = THIS DAY's value vs monthly limit
-        // Over warning = monthly total exceeds limit
-        const dayOver=lim>0&&val>lim;
-        const monOver=lim>0&&mTot>lim;
-        const wpct=lim>0?clamp(pct(val,lim),0,100):0;
-        const barCol=dayOver?"var(--red)":wpct>80?"var(--amb)":"var(--acc)";
-        return`<div class="inp-row${dayOver?" over":""}" id="row-${idx}">
-          <div class="ico" style="background:${x.col}20"><i class="ti ${x.ic}" style="color:${x.col}"></i></div>
-          <div class="inp-info">
-            <div class="inp-name" style="${dayOver?"color:var(--red)":""}">${x.k}</div>
-            <div class="inp-meta${dayOver?" over-text":""}">
-              <span>Today: ${fmt(val)}</span>
-              <span style="color:var(--t4)">|</span>
-              <span style="color:${monOver?"var(--red)":"var(--t3)"}">Month: ${fmt(mTot)} / ${fmt(lim)}</span>
-            </div>
-            <div class="pbar"><div class="pfill${dayOver?" over":""}" style="width:${wpct}%;background:${barCol};${dayOver?"box-shadow:0 0 7px var(--red)40":""}"></div></div>
-            ${dayOver?`<div class="overspend-warn"><i class="ti ti-alert-triangle" style="font-size:10px"></i>Today exceeds limit by ${fmt(val-lim)}</div>`
-            :monOver?`<div class="overspend-warn" style="background:var(--amb2);color:var(--amb);border-color:var(--amb)30"><i class="ti ti-alert-triangle" style="font-size:10px"></i>Month total over by ${fmt(mTot-lim)}</div>`:""}
-          </div>
-          <input class="finp${dayOver?" over-inp":""}" type="number" min="0" placeholder="0" value="${val||""}"
-            data-t="exp" data-m="${selM}" data-d="${selDate}" data-k="${x.k}" data-idx="${idx}">
-        </div>`;
-      }).join("")}
+    <div class="exp-field-row">
+      <div class="exp-field-label">Category</div>
+      <div class="exp-cat-grid" id="expCatGrid">${catGrid}</div>
     </div>
-    <div class="total-strip">
-      <span class="total-lbl">Day total</span>
-      <span class="total-val" id="exp-tot">${fmt(totD)}</span>
+    <div class="exp-field-row" style="margin-bottom:0">
+      <div class="exp-field-label">Amount</div>
+      <div class="exp-amount-row">
+        <input class="exp-amount-inp" id="expAmount" type="number" min="0" placeholder="0" inputmode="decimal">
+        <button class="btn-add-entry" onclick="addDailyEntry()"><i class="ti ti-check"></i>Add</button>
+      </div>
     </div>
   </div>
 
+  <!-- TODAY'S ENTRY LIST -->
+  <div class="card">
+    <div class="card-hdr" style="padding-bottom:6px">
+      <div class="card-hdr-title"><i class="ti ti-list" style="color:var(--red)"></i>Today's entries · ${selDate} ${selM}</div>
+      <span class="pill ${overAll?"pill-r":"pill-g"}">${fmt(totD)}</span>
+    </div>
+    <div class="card-body" style="padding-top:4px">
+      <div class="entry-list" id="entryList">${entryHTML}</div>
+    </div>
+    ${entries.length>0?`<div class="total-strip">
+      <span class="total-lbl">Day total · ${entries.length} item${entries.length!==1?"s":""}</span>
+      <span class="total-val" style="color:var(--red)">${fmt(totD)}</span>
+    </div>`:""}
+  </div>
+
+  <!-- CATEGORY PROGRESS (per-category day + month totals with progress bar) -->
+  <div class="card">
+    <div class="card-hdr" style="padding-bottom:4px">
+      <div class="card-hdr-title"><i class="ti ti-list-check" style="color:var(--amb)"></i>Category progress · ${selM}</div>
+      <span class="pill ${overAll?"pill-r":"pill-g"}">${overAll?"Over":"On track"}</span>
+    </div>
+    <div class="card-body" style="padding-top:6px" id="cat-progress">
+      ${catRows}
+    </div>
+    <div class="total-strip">
+      <span class="total-lbl">Month total</span>
+      <span class="total-val" style="color:var(--red)">${fmt(totM)}</span>
+    </div>
+  </div>
+
+  <!-- MONTH BAR BREAKDOWN -->
   <div class="card">
     <div class="card-hdr" style="padding-bottom:4px"><div class="card-hdr-title"><i class="ti ti-chart-bar" style="color:var(--red)"></i>${selM} breakdown</div></div>
     <div class="card-body" style="padding-top:6px">
@@ -1105,6 +1317,7 @@ function renderInv(){
   const onTrack=totM>=idealTot;
 
   return`<div class="fade-in">
+  ${!xlFile?noFileBanner():""}
   ${calendarWidget("inv")}
 
   <div class="g2">
@@ -1165,12 +1378,64 @@ function renderSum(){
   const annI=MONTHS.reduce((s,m)=>s+totalInvM(m),0);
   const annSur=SALARY*12-annE-annI;
 
+  // Day history — filtered by sumSelDate if set, otherwise all days in sumSelM
+  const numDays=daysInMonth(MONTHS.indexOf(sumSelM));
+  const daysWithData=[];
+  if(sumSelDate!==null){
+    // Show only the selected date
+    const entries=getDayEntries(sumSelM,sumSelDate);
+    if(entries.length>0) daysWithData.push({d:sumSelDate,entries,total:entries.reduce((s,e)=>s+e.amount,0)});
+  } else {
+    for(let d=1;d<=numDays;d++){
+      const entries=getDayEntries(sumSelM,d);
+      if(entries.length>0) daysWithData.push({d,entries,total:entries.reduce((s,e)=>s+e.amount,0)});
+    }
+    daysWithData.reverse(); // most recent first
+  }
+
+  const dayHistHTML=daysWithData.length===0
+    ? `<div style="text-align:center;padding:20px 0;color:var(--t3);font-size:11px">${sumSelDate!==null?`No expenses on ${sumSelDate} ${sumSelM}.`:`No expense entries for ${sumSelM} yet.`}</div>`
+    : daysWithData.map(({d,entries,total})=>{
+        const entryLines=entries.map(e=>{
+          const cat=expCats.find(c=>c.k===e.cat)||{col:"#9090b0"};
+          return`<div class="day-hist-entry">
+            <div class="day-hist-dot" style="background:${cat.col}"></div>
+            <div class="day-hist-desc">${e.desc||e.cat}</div>
+            <div class="day-hist-amt">${fmt(e.amount)}</div>
+          </div>`;
+        }).join("");
+        return`<div class="day-history-item">
+          <div class="day-hist-header">
+            <div class="day-hist-date"><i class="ti ti-calendar-event"></i>${d} ${sumSelM}</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:9px;color:var(--t3);font-weight:600">${entries.length} item${entries.length!==1?"s":""}</span>
+              <div class="day-hist-total">${fmt(total)}</div>
+            </div>
+          </div>
+          <div class="day-hist-entries">${entryLines}</div>
+        </div>`;
+      }).join("");
+
   return`<div class="fade-in">
   <div class="g4" style="margin-bottom:12px">
     <div class="kpi"><div class="kpi-lbl">Annual expenses</div><div class="kpi-val r" style="font-size:14px">${fmt(annE)}</div></div>
     <div class="kpi"><div class="kpi-lbl">Annual invested</div><div class="kpi-val p" style="font-size:14px">${fmt(annI)}</div></div>
     <div class="kpi"><div class="kpi-lbl">Investment rate</div><div class="kpi-val g" style="font-size:14px">${pct(annI,SALARY*12)}%</div></div>
     <div class="kpi"><div class="kpi-lbl">Annual surplus</div><div class="kpi-val ${annSur>=0?"g":"r"}" style="font-size:14px">${fmt(Math.abs(annSur))}</div></div>
+  </div>
+
+  <!-- SUMMARY CALENDAR -->
+  ${summaryCalendarWidget()}
+
+  <!-- DAY-LEVEL HISTORY -->
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-hdr" style="padding-bottom:6px">
+      <div class="card-hdr-title"><i class="ti ti-history" style="color:var(--red)"></i>${sumSelDate!==null?`${sumSelDate} ${sumSelM} expenses`:"Daily expense history"}</div>
+      ${sumSelDate!==null?`<span class="pill pill-r">${fmt(totalExpDate(sumSelM,sumSelDate))}</span>`:`<span class="pill pill-b">${sumSelM}</span>`}
+    </div>
+    <div class="card-body" style="padding-top:0">
+      ${dayHistHTML}
+    </div>
   </div>
 
   <div class="card">
@@ -1378,11 +1643,12 @@ function deleteInvCat(i){
 }
 function confirmReset(){
   if(!confirm("Reset ALL data? This cannot be undone."))return;
-  db=initDB();startM=null;saveState();showToast("All data reset");render();
+  db=initDB();dailyEntries={};startM=null;saveUI();xlAutoSave();showToast("All data reset");render();
 }
 
 // ─────────────────── BIND INPUTS ───────────────────
 function bindAll(){
+  // Only investment inputs use the old .finp binding now
   document.querySelectorAll(".finp").forEach(inp=>{
     inp.addEventListener("input",()=>{
       const{t,m,k}=inp.dataset;
@@ -1394,62 +1660,165 @@ function bindAll(){
       saveState();
       xlAutoSave();
       showToast("Saved ✓");
-      if(t==="exp"){
-        const etot=document.getElementById("exp-tot");
-        if(etot)etot.textContent=fmt(totalExpDate(m,d));
-        expCats.forEach((x,idx)=>{
-          const dayVal=db[m]?.[d]?.exp?.[x.k]||0;
-          const mTot=totalCatM(m,x.k);
-          const lim=x.limit||0;
-          const dayOver=lim>0&&dayVal>lim;
-          const monOver=lim>0&&mTot>lim;
-          const wpct=lim>0?clamp(pct(dayVal,lim),0,100):0;
-          const barCol=dayOver?"var(--red)":wpct>80?"var(--amb)":"var(--acc)";
-          const row=document.getElementById("row-"+idx);
-          if(!row)return;
-          // update meta
-          const meta=row.querySelector(".inp-meta");
-          if(meta){
-            meta.className="inp-meta"+(dayOver?" over-text":"");
-            meta.innerHTML=`<span>Today: ${fmt(dayVal)}</span><span style="color:var(--t4)">|</span><span style="color:${monOver?"var(--red)":"var(--t3)"}">Month: ${fmt(mTot)} / ${fmt(lim)}</span>`;
-          }
-          // update pbar
-          const pfill=row.querySelector(".pfill");
-          if(pfill){pfill.style.width=wpct+"%";pfill.style.background=barCol;pfill.style.boxShadow=dayOver?"0 0 7px rgba(255,91,91,.4)":"";pfill.className="pfill"+(dayOver?" over":"");}
-          // update/create warn
-          let warn=row.querySelector(".overspend-warn");
-          if(dayOver){
-            if(!warn){warn=document.createElement("div");warn.className="overspend-warn";row.querySelector(".inp-info").appendChild(warn);}
-            warn.style.cssText="";warn.innerHTML=`<i class="ti ti-alert-triangle" style="font-size:10px"></i>Today exceeds limit by ${fmt(dayVal-lim)}`;
-          } else if(monOver){
-            if(!warn){warn=document.createElement("div");warn.className="overspend-warn";row.querySelector(".inp-info").appendChild(warn);}
-            warn.style.cssText="background:var(--amb2);color:var(--amb);border-color:var(--amb)30";
-            warn.innerHTML=`<i class="ti ti-alert-triangle" style="font-size:10px"></i>Month total over by ${fmt(mTot-lim)}`;
-          } else if(warn){warn.remove();}
-          // update input highlight
-          const finp=row.querySelector(".finp");
-          if(finp)finp.className="finp"+(dayOver?" over-inp":"");
-          row.className="inp-row"+(dayOver?" over":"");
-          const nm=row.querySelector(".inp-name");
-          if(nm)nm.style.color=dayOver?"var(--red)":"";
-        });
-      }
     });
+  });
+  // Bind Enter key on expense add form
+  const descEl=document.getElementById("expDesc");
+  const amtEl=document.getElementById("expAmount");
+  if(descEl) descEl.addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("expAmount")?.focus();});
+  if(amtEl) amtEl.addEventListener("keydown",e=>{if(e.key==="Enter")addDailyEntry();});
+}
+
+// ─────────────────── DAILY ENTRY ACTIONS ───────────────────
+let _selCatIdx=null; // currently selected category index in the add form
+
+function selectExpCat(idx){
+  _selCatIdx=idx;
+  document.querySelectorAll(".exp-cat-chip").forEach((el,i)=>{
+    const cat=expCats[i];
+    if(i===idx){
+      el.classList.add("selected");
+      el.style.background=cat.col+"25";
+      el.style.borderColor=cat.col;
+    } else {
+      el.classList.remove("selected");
+      el.style.background="";
+      el.style.borderColor="";
+    }
   });
 }
 
+function addDailyEntry(){
+  const desc=(document.getElementById("expDesc")?.value||"").trim();
+  const amtRaw=parseFloat(document.getElementById("expAmount")?.value||"0");
+  const amount=Math.max(0,amtRaw);
+
+  if(!desc){showToast("Add a description first");document.getElementById("expDesc")?.focus();return;}
+  if(_selCatIdx===null||_selCatIdx>=expCats.length){showToast("Pick a category");return;}
+  if(!amount){showToast("Enter an amount");document.getElementById("expAmount")?.focus();return;}
+
+  const cat=expCats[_selCatIdx].k;
+  const key=getDayKey(selM,selDate);
+  if(!dailyEntries[key])dailyEntries[key]=[];
+
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+  dailyEntries[key].push({id:Date.now(),cat,desc,amount,time:timeStr});
+
+  // Clear form
+  if(document.getElementById("expDesc"))document.getElementById("expDesc").value="";
+  if(document.getElementById("expAmount"))document.getElementById("expAmount").value="";
+  _selCatIdx=null;
+  document.querySelectorAll(".exp-cat-chip").forEach(el=>{el.classList.remove("selected");el.style.background="";el.style.borderColor="";});
+
+  saveState();
+  xlAutoSave();
+  showToast("Expense added ✓");
+  // Re-render just the dynamic parts without full render for speed
+  render();
+}
+
+function deleteEntry(key,idx){
+  if(!dailyEntries[key])return;
+  dailyEntries[key].splice(idx,1);
+  if(dailyEntries[key].length===0)delete dailyEntries[key];
+  saveState();
+  xlAutoSave();
+  showToast("Removed");
+  render();
+}
+
+function toggleCalendar(){
+  calCollapsed=!calCollapsed;
+  saveState();
+  // Toggle without full render
+  const collapsibles=document.querySelectorAll(".cal-collapsible");
+  collapsibles.forEach(el=>el.classList.toggle("collapsed",calCollapsed));
+  const btns=document.querySelectorAll(".cal-collapse-btn i");
+  btns.forEach(el=>{el.className=calCollapsed?"ti ti-chevron-down":"ti ti-chevron-up";});
+}
+
+function sumSelectM(m){
+  sumSelM=m;
+  sumSelDate=null; // clear date filter when switching month
+  saveState();
+  render();
+}
+
+function changeSumDate(d){
+  // Toggle: clicking same date deselects it (shows all)
+  if(sumSelDate===d) sumSelDate=null;
+  else sumSelDate=d;
+  saveState();
+  render();
+}
+
+function clearSumDate(){
+  sumSelDate=null;
+  saveState();
+  render();
+}
+
+function summaryCalendarWidget(){
+  const mIdx=MONTHS.indexOf(sumSelM);
+  const numDays=daysInMonth(mIdx);
+  const firstDay=firstDayOfMonth(mIdx);
+
+  const monthChips=MONTHS.map(m=>`<div class="cal-mchip${m===sumSelM?" on":""}" onclick="sumSelectM('${m}')">${m}</div>`).join("");
+  const dowCells=["S","M","T","W","T","F","S"].map(d=>`<div class="cal-dow-cell">${d}</div>`).join("");
+
+  let cells="";
+  for(let i=0;i<firstDay;i++) cells+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=numDays;d++){
+    const isToday=(sumSelM===NOW_M&&d===NOW_DATE);
+    const isSelected=(d===sumSelDate);
+    const hasData=totalExpDate(sumSelM,d)>0;
+    const cls=`cal-day${isToday?" today":""}${isSelected?" selected":""}${hasData?" has-data":""}`;
+    cells+=`<div class="${cls}" onclick="changeSumDate(${d})"><span class="cal-day-num">${d}</span></div>`;
+  }
+
+  const filterFooter=sumSelDate!==null
+    ? `<div class="sum-cal-filter">
+        <div class="sum-cal-filter-label"><i class="ti ti-calendar-event"></i>${sumSelDate} ${MONTH_FULL[mIdx]}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="sum-cal-filter-total">${fmt(totalExpDate(sumSelM,sumSelDate))}</div>
+          <div class="sum-cal-clear" onclick="clearSumDate()"><i class="ti ti-x" style="font-size:9px"></i>All days</div>
+        </div>
+      </div>`
+    : `<div class="sum-cal-filter">
+        <div class="sum-cal-filter-label" style="color:var(--t3);font-size:11px;font-weight:600"><i class="ti ti-calendar" style="color:var(--t3)"></i>Tap a date to filter</div>
+        <div class="sum-cal-filter-total" style="color:var(--red)">${fmt(MONTHS.slice(0,12).reduce((s,m)=>s+(m===sumSelM?totalExpM(m):0),0))}</div>
+      </div>`;
+
+  return`<div class="cal-widget">
+    <div class="cal-header">
+      <div class="cal-header-title"><i class="ti ti-calendar" style="color:var(--acc);font-size:15px"></i>${MONTH_FULL[mIdx]}</div>
+      <div class="cal-nav">
+        <div class="cal-nav-btn" onclick="sumSelectM('${MONTHS[(mIdx-1+12)%12]}')"><i class="ti ti-chevron-left"></i></div>
+        <div class="cal-nav-btn" onclick="sumSelectM('${MONTHS[(mIdx+1)%12]}')"><i class="ti ti-chevron-right"></i></div>
+      </div>
+    </div>
+    <div class="cal-months">${monthChips}</div>
+    <div class="cal-grid-wrap">
+      <div class="cal-dow">${dowCells}</div>
+      <div class="cal-dates">${cells}</div>
+    </div>
+    ${filterFooter}
+  </div>`;
+}
+
 // ─────────────────── NAVIGATION HELPERS ───────────────────
-function pickStart(m){startM=m;selM=m;saveState();render();}
-function changeExpM(m){selM=m;// when switching month, keep selDate within bounds
+function pickStart(m){startM=m;selM=m;saveUI();xlAutoSave();render();}
+function changeExpM(m){selM=m;
   const maxD=daysInMonth(MONTHS.indexOf(m));
   if(selDate>maxD)selDate=maxD;
-  render();}
-function changeExpDate(d){selDate=d;render();}
+  saveUI();render();}
+function changeExpDate(d){selDate=d;saveUI();render();}
 function changeInvM(m){selM=m;
   const maxD=daysInMonth(MONTHS.indexOf(m));
   if(selDate>maxD)selDate=maxD;
-  render();}
-function changeInvDate(d){selDate=d;render();}
+  saveUI();render();}
+function changeInvDate(d){selDate=d;saveUI();render();}
 
 // ─────────────────── LIVE BUDGET ALLOCATION UPDATE ───────────────────
 function updateBudgetAlloc(){
@@ -1500,10 +1869,10 @@ function renderXlPanel(){
     <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="xlFileChosen(event)">
     <div class="xl-drop-icon"><i class="ti ti-file-spreadsheet"></i></div>
     <div class="xl-drop-title">Connect Excel Database</div>
-    <div class="xl-drop-sub">Upload an .xlsx file to use as your database<br>All data will be read from &amp; written to this file</div>
+    <div class="xl-drop-sub">Your Excel file is the <strong style="color:var(--acc)">only storage</strong> — no data is saved to your phone.<br>Upload your .xlsx to load &amp; save all data.</div>
   </div>
   <div style="margin-top:8px;font-size:10px;color:var(--t3);text-align:center">
-    Only <strong style="color:var(--acc)">.xlsx</strong> files are accepted · New file? Upload a blank one
+    Only <strong style="color:var(--acc)">.xlsx</strong> files are accepted · New? Upload a blank .xlsx
   </div>`;
 }
 
@@ -1530,16 +1899,21 @@ function xlLoad(file){
     try{
       const ab=e.target.result;
       const wb=XLSX.read(ab,{type:"array"});
-      // Check if this is a FinTrack workbook (has our sheets) — if yes, import data
-      if(wb.SheetNames.includes(XL_SHEET_EXPENSES)){
+      // Reset all data before importing
+      profile={...DEFAULT_PROFILE};
+      expCats=DEFAULT_EXP.map(x=>({...x}));
+      invCats=DEFAULT_INV.map(x=>({...x}));
+      db=initDB();
+      dailyEntries={};
+      // Import from workbook if it has our sheets
+      if(wb.SheetNames.includes(XL_SHEET_EXPENSES)||wb.SheetNames.includes(XL_SHEET_META)){
         xlImportFromWorkbook(wb);
-        showToast("Database loaded & imported!");
+        showToast("Database loaded!");
       } else {
         showToast("New Excel connected!");
+        render();
       }
       xlFile={name:file.name,size:file.size,arrayBuffer:ab};
-      saveState();
-      // Write current state into the file immediately
       xlWriteToFile();
       refreshXlPanel();
     } catch(err){
@@ -1582,18 +1956,30 @@ function xlImportFromWorkbook(wb){
       }));
     }
   }
-  // Expenses
+  // Expense data — flat entries with description
   const expDataSh=wb.Sheets[XL_SHEET_EXPENSES];
   if(expDataSh){
     const rows=XLSX.utils.sheet_to_json(expDataSh);
-    rows.forEach(r=>{
-      const m=r.month,d=Number(r.day),cat=r.category,val=Number(r.amount)||0;
-      if(!m||!d||!cat)return;
-      if(!db[m])db[m]={};
-      if(!db[m][d])db[m][d]={exp:{},inv:{}};
-      if(!db[m][d].exp)db[m][d].exp={};
-      db[m][d].exp[cat]=val;
-    });
+    // Check if new format (has 'desc' column) vs old format
+    if(rows.length>0&&rows[0].desc!==undefined){
+      // New format: individual entries
+      rows.forEach(r=>{
+        const m=r.month,d=Number(r.day),cat=r.category,val=Number(r.amount)||0,desc=r.desc||"",time=r.time||"";
+        if(!m||!d||!cat)return;
+        const key=m+"-"+d;
+        if(!dailyEntries[key])dailyEntries[key]=[];
+        dailyEntries[key].push({id:Date.now()+Math.random(),cat,desc,amount:val,time});
+      });
+    } else {
+      // Legacy format: category totals → convert to single entry per category
+      rows.forEach(r=>{
+        const m=r.month,d=Number(r.day),cat=r.category,val=Number(r.amount)||0;
+        if(!m||!d||!cat||!val)return;
+        const key=m+"-"+d;
+        if(!dailyEntries[key])dailyEntries[key]=[];
+        dailyEntries[key].push({id:Date.now()+Math.random(),cat,desc:cat,amount:val,time:""});
+      });
+    }
   }
   // Investments
   const invDataSh=wb.Sheets[XL_SHEET_INVEST];
@@ -1609,7 +1995,6 @@ function xlImportFromWorkbook(wb){
     });
   }
   db=ensureDB(db);
-  saveState();
   render();
 }
 
@@ -1629,18 +2014,18 @@ function xlBuildWorkbook(){
   const invCatRows=invCats.map(x=>({name:x.k,target:x.target,icon:x.ic,color:x.col}));
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(invCatRows),XL_SHEET_INVCATS);
 
-  // Expense data — flatten all entries
+  // Expense data — individual entries with description
   const expRows=[];
   MONTHS.forEach(m=>{
     const days=daysInMonth(MONTHS.indexOf(m));
     for(let d=1;d<=days;d++){
-      expCats.forEach(x=>{
-        const val=db[m]?.[d]?.exp?.[x.k]||0;
-        if(val>0) expRows.push({month:m,day:d,category:x.k,amount:val});
+      const entries=getDayEntries(m,d);
+      entries.forEach(e=>{
+        expRows.push({month:m,day:d,category:e.cat,amount:e.amount,desc:e.desc||"",time:e.time||""});
       });
     }
   });
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(expRows.length?expRows:[{month:"",day:"",category:"",amount:""}]),XL_SHEET_EXPENSES);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(expRows.length?expRows:[{month:"",day:"",category:"",amount:"",desc:"",time:""}]),XL_SHEET_EXPENSES);
 
   // Investment data — flatten
   const invRows=[];
@@ -1669,6 +2054,17 @@ function xlWriteToFile(){
   } catch(e){console.error("xlWriteToFile",e);}
 }
 
+// ── No-file warning banner for data tabs ──
+function noFileBanner(){
+  return`<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--amb2);border:1px solid var(--amb)40;border-radius:13px;margin-bottom:10px">
+    <i class="ti ti-file-alert" style="color:var(--amb);font-size:20px;flex-shrink:0"></i>
+    <div style="min-width:0">
+      <div style="font-size:11px;font-weight:800;color:var(--amb)">No Excel file connected</div>
+      <div style="font-size:9px;color:var(--amb);opacity:.85;margin-top:1px">Go to <b>Profile → Excel Database</b> to upload your .xlsx file. Data won't be saved until a file is connected.</div>
+    </div>
+  </div>`;
+}
+
 // ── Auto-save (debounced) — writes to in-memory buffer ──
 function xlAutoSave(){
   if(!xlFile)return;
@@ -1695,10 +2091,19 @@ function xlExport(){
 
 // ── Detach the Excel file ──
 function xlDetach(){
-  if(!confirm("Disconnect Excel file? Your data stays in the app."))return;
+  if(!confirm("Disconnect Excel file?\n\nAll data will be cleared from memory. Make sure you've downloaded your file first."))return;
   xlFile=null;
+  // Clear all in-memory data
+  profile={...DEFAULT_PROFILE};
+  expCats=DEFAULT_EXP.map(x=>({...x}));
+  invCats=DEFAULT_INV.map(x=>({...x}));
+  db=initDB();
+  dailyEntries={};
+  startM=null;
+  saveUI();
   refreshXlPanel();
-  showToast("Excel disconnected");
+  render();
+  showToast("Excel disconnected · Data cleared");
 }
 
 // ── Update status text ──
@@ -1739,6 +2144,8 @@ function render(){
 }
 
 // ─────────────────── INIT ───────────────────
+// One-time cleanup: remove old large localStorage data key if present
+try{localStorage.removeItem("ft_state_v4");}catch(e){}
 applyTheme();
 render();
 </script>
