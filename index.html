@@ -717,16 +717,31 @@ const DEFAULT_INV=[
 ];
 
 // ─────────────────── PERSISTENCE ───────────────────
-// Only UI preferences (no financial data) stored in localStorage — tiny footprint
+// ALL data stored in localStorage automatically. Excel is export/import only.
 const UI_KEY="ft_ui_v1";
+const DATA_KEY="ft_data_v1";
+
 function loadUI(){
   try{const r=localStorage.getItem(UI_KEY);return r?JSON.parse(r):{};}catch(e){return{};}
 }
 function saveUI(){
   try{localStorage.setItem(UI_KEY,JSON.stringify({selM,selDate,startM,dark,calCollapsed,sumSelM,sumSelDate}));}catch(e){}
 }
-// saveState = alias so existing call sites just save UI prefs
-function saveState(){saveUI();}
+
+function loadData(){
+  try{
+    const r=localStorage.getItem(DATA_KEY);
+    if(!r)return null;
+    return JSON.parse(r);
+  }catch(e){return null;}
+}
+function saveData(){
+  try{
+    localStorage.setItem(DATA_KEY,JSON.stringify({profile,expCats,invCats,db,dailyEntries}));
+  }catch(e){console.warn("localStorage full or error",e);}
+}
+// saveState = saves both UI prefs and all financial data
+function saveState(){saveUI();saveData();}
 
 // DB uses numeric day keys; only needed for investments now
 function initDB(){
@@ -748,12 +763,13 @@ function ensureDB(d){
 
 // ─────────────────── LOAD STATE ───────────────────
 const ui=loadUI();
-let profile={...DEFAULT_PROFILE};
-let expCats=DEFAULT_EXP.map(x=>({...x}));
-let invCats=DEFAULT_INV.map(x=>({...x}));
-let db=initDB();
+const savedData=loadData();
+let profile=savedData?.profile?{...DEFAULT_PROFILE,...savedData.profile}:{...DEFAULT_PROFILE};
+let expCats=savedData?.expCats||DEFAULT_EXP.map(x=>({...x}));
+let invCats=savedData?.invCats||DEFAULT_INV.map(x=>({...x}));
+let db=savedData?.db?ensureDB(savedData.db):initDB();
 // dailyEntries: { "Jan-5": [{id, cat, desc, amount, time}, ...] }
-let dailyEntries={};
+let dailyEntries=savedData?.dailyEntries||{};
 let tab=0;
 let selM=ui.selM||NOW_M;
 let selDate=ui.selDate||NOW_DATE;
@@ -1591,10 +1607,23 @@ function renderProfile(){
   </div>
 
   <div class="section">
-    <div class="sec-title">Excel Database</div>
+    <div class="sec-title">Excel Backup</div>
     <div class="card">
       <div class="card-body" style="padding-top:12px">
-        <div id="xl-panel">${renderXlPanel()}</div>
+        <div style="font-size:10px;color:var(--t3);margin-bottom:12px;line-height:1.6">
+          <i class="ti ti-device-floppy" style="color:var(--acc)"></i>
+          Your data is <strong style="color:var(--acc)">auto-saved</strong> to this device. Use Excel to back up or move data to another device.
+        </div>
+        <button class="btn-pri" style="margin-bottom:8px" onclick="xlExport()">
+          <i class="ti ti-download" style="margin-right:6px"></i>Export data as Excel (.xlsx)
+        </button>
+        <div class="xl-drop-zone" id="xl-drop" ondragover="xlDragOver(event)" ondragleave="xlDragLeave(event)" ondrop="xlDrop(event)" style="margin-top:4px">
+          <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="xlFileChosen(event)">
+          <div class="xl-drop-icon" style="font-size:24px;margin-bottom:4px"><i class="ti ti-upload"></i></div>
+          <div class="xl-drop-title" style="font-size:12px">Import from Excel</div>
+          <div class="xl-drop-sub">Upload a previously exported .xlsx to restore data</div>
+        </div>
+        <div id="xl-status" class="xl-status" style="margin-top:6px"></div>
       </div>
     </div>
   </div>
@@ -1837,10 +1866,9 @@ function updateBudgetAlloc(){
   el("ba-warn").innerHTML=leftover<0?`<div class="overspend-warn"><i class="ti ti-alert-triangle" style="font-size:10px"></i>Budget exceeds salary by ${fmt(-leftover)}</div>`:"";
 }
 
-// ─────────────────── EXCEL DATABASE SYSTEM ───────────────────
-let xlFile=null; // {name,size,arrayBuffer} — the loaded workbook bytes
-let xlDirty=false;
-let xlAutoSaveTimer=null;
+// ─────────────────── EXCEL EXPORT / IMPORT SYSTEM ───────────────────
+// Data is stored in localStorage automatically.
+// Excel is used only for export (backup/share) and import (restore).
 
 // ── Excel sheet names ──
 const XL_SHEET_META     ="FinTrack_Meta";
@@ -1849,34 +1877,7 @@ const XL_SHEET_INVCATS  ="InvestCategories";
 const XL_SHEET_EXPENSES ="Expenses";
 const XL_SHEET_INVEST   ="Investments";
 
-// ── Render the Excel panel HTML ──
-function renderXlPanel(){
-  if(xlFile){
-    return`<div class="xl-file-info">
-      <i class="ti ti-file-spreadsheet xl-file-icon"></i>
-      <div class="xl-file-name">
-        <div class="xl-fname">${xlFile.name}</div>
-        <div class="xl-fsize">${(xlFile.size/1024).toFixed(1)} KB · Active database</div>
-      </div>
-      <div class="xl-actions">
-        <button class="xl-btn xl-btn-pri" onclick="xlExport()"><i class="ti ti-download"></i>Save</button>
-        <button class="xl-btn xl-btn-sec" onclick="xlDetach()"><i class="ti ti-x"></i></button>
-      </div>
-    </div>
-    <div id="xl-status" class="xl-status ok"><i class="ti ti-check"></i> Synced to Excel</div>`;
-  }
-  return`<div class="xl-drop-zone" id="xl-drop" ondragover="xlDragOver(event)" ondragleave="xlDragLeave(event)" ondrop="xlDrop(event)">
-    <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="xlFileChosen(event)">
-    <div class="xl-drop-icon"><i class="ti ti-file-spreadsheet"></i></div>
-    <div class="xl-drop-title">Connect Excel Database</div>
-    <div class="xl-drop-sub">Your Excel file is the <strong style="color:var(--acc)">only storage</strong> — no data is saved to your phone.<br>Upload your .xlsx to load &amp; save all data.</div>
-  </div>
-  <div style="margin-top:8px;font-size:10px;color:var(--t3);text-align:center">
-    Only <strong style="color:var(--acc)">.xlsx</strong> files are accepted · New? Upload a blank .xlsx
-  </div>`;
-}
-
-// ── Drag helpers ──
+// ── Drag helpers for import zone ──
 function xlDragOver(e){e.preventDefault();document.getElementById("xl-drop")?.classList.add("drag")}
 function xlDragLeave(e){document.getElementById("xl-drop")?.classList.remove("drag")}
 function xlDrop(e){
@@ -1887,7 +1888,7 @@ function xlDrop(e){
 }
 function xlFileChosen(e){const file=e.target?.files?.[0];if(file)xlLoad(file);}
 
-// ── Validate & load file ──
+// ── Import from Excel file ──
 function xlLoad(file){
   if(!file.name.match(/\.xlsx$/i)){
     showToast("Only .xlsx files allowed");
@@ -1895,27 +1896,26 @@ function xlLoad(file){
     return;
   }
   const reader=new FileReader();
-  reader.onload=e=>{
+  reader.onload=ev=>{
     try{
-      const ab=e.target.result;
+      const ab=ev.target.result;
       const wb=XLSX.read(ab,{type:"array"});
-      // Reset all data before importing
-      profile={...DEFAULT_PROFILE};
-      expCats=DEFAULT_EXP.map(x=>({...x}));
-      invCats=DEFAULT_INV.map(x=>({...x}));
-      db=initDB();
-      dailyEntries={};
-      // Import from workbook if it has our sheets
       if(wb.SheetNames.includes(XL_SHEET_EXPENSES)||wb.SheetNames.includes(XL_SHEET_META)){
+        if(!confirm("This will replace all current data with data from the Excel file. Continue?"))return;
+        profile={...DEFAULT_PROFILE};
+        expCats=DEFAULT_EXP.map(x=>({...x}));
+        invCats=DEFAULT_INV.map(x=>({...x}));
+        db=initDB();
+        dailyEntries={};
         xlImportFromWorkbook(wb);
-        showToast("Database loaded!");
-      } else {
-        showToast("New Excel connected!");
+        saveState(); // persist imported data to localStorage
+        showToast("Data imported from Excel!");
+        xlSetStatus('<i class="ti ti-check"></i> Import successful — data saved to device',"ok");
         render();
+      } else {
+        showToast("No FinTrack data found in this file");
+        xlSetStatus("No FinTrack sheets found in this file","err");
       }
-      xlFile={name:file.name,size:file.size,arrayBuffer:ab};
-      xlWriteToFile();
-      refreshXlPanel();
     } catch(err){
       showToast("Error reading file");
       xlSetStatus("Error: "+err.message,"err");
@@ -2001,33 +2001,22 @@ function xlImportFromWorkbook(wb){
 // ── Build workbook from current app state ──
 function xlBuildWorkbook(){
   const wb=XLSX.utils.book_new();
-
-  // META sheet
   const metaRows=Object.entries(profile).map(([key,value])=>({key,value}));
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(metaRows),XL_SHEET_META);
-
-  // Expense categories
   const expCatRows=expCats.map(x=>({name:x.k,limit:x.limit,icon:x.ic,color:x.col}));
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(expCatRows),XL_SHEET_EXPCATS);
-
-  // Investment categories
   const invCatRows=invCats.map(x=>({name:x.k,target:x.target,icon:x.ic,color:x.col}));
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(invCatRows),XL_SHEET_INVCATS);
-
-  // Expense data — individual entries with description
   const expRows=[];
   MONTHS.forEach(m=>{
     const days=daysInMonth(MONTHS.indexOf(m));
     for(let d=1;d<=days;d++){
-      const entries=getDayEntries(m,d);
-      entries.forEach(e=>{
+      getDayEntries(m,d).forEach(e=>{
         expRows.push({month:m,day:d,category:e.cat,amount:e.amount,desc:e.desc||"",time:e.time||""});
       });
     }
   });
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(expRows.length?expRows:[{month:"",day:"",category:"",amount:"",desc:"",time:""}]),XL_SHEET_EXPENSES);
-
-  // Investment data — flatten
   const invRows=[];
   MONTHS.forEach(m=>{
     const days=daysInMonth(MONTHS.indexOf(m));
@@ -2039,72 +2028,27 @@ function xlBuildWorkbook(){
     }
   });
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(invRows.length?invRows:[{month:"",day:"",category:"",amount:""}]),XL_SHEET_INVEST);
-
   return wb;
 }
 
-// ── Write current state into xlFile's buffer (in-memory) ──
-function xlWriteToFile(){
-  if(!xlFile)return;
+// ── Export: download current data as Excel ──
+function xlExport(){
   try{
     const wb=xlBuildWorkbook();
     const ab=XLSX.write(wb,{bookType:"xlsx",type:"array"});
-    xlFile.arrayBuffer=ab;
-    xlFile.size=ab.byteLength;
-  } catch(e){console.error("xlWriteToFile",e);}
+    const blob=new Blob([ab],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    const ts=new Date().toISOString().slice(0,10);
+    a.href=url;a.download="FinTrack_"+ts+".xlsx";a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    showToast("Excel exported!");
+    xlSetStatus('<i class="ti ti-check"></i> Exported successfully',"ok");
+  }catch(e){showToast("Export failed");xlSetStatus("Export error: "+e.message,"err");}
 }
 
-// ── No-file warning banner for data tabs ──
-function noFileBanner(){
-  return`<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--amb2);border:1px solid var(--amb)40;border-radius:13px;margin-bottom:10px">
-    <i class="ti ti-file-alert" style="color:var(--amb);font-size:20px;flex-shrink:0"></i>
-    <div style="min-width:0">
-      <div style="font-size:11px;font-weight:800;color:var(--amb)">No Excel file connected</div>
-      <div style="font-size:9px;color:var(--amb);opacity:.85;margin-top:1px">Go to <b>Profile → Excel Database</b> to upload your .xlsx file. Data won't be saved until a file is connected.</div>
-    </div>
-  </div>`;
-}
-
-// ── Auto-save (debounced) — writes to in-memory buffer ──
-function xlAutoSave(){
-  if(!xlFile)return;
-  clearTimeout(xlAutoSaveTimer);
-  xlAutoSaveTimer=setTimeout(()=>{
-    xlWriteToFile();
-    xlSetStatus('<i class="ti ti-check"></i> Synced to Excel',"ok");
-  },600);
-  xlSetStatus('<i class="ti ti-loader" style="animation:spin 1s linear infinite;display:inline-block"></i> Saving…',"");
-}
-
-// ── Manual export / download ──
-function xlExport(){
-  if(!xlFile){showToast("No Excel file connected");return;}
-  xlWriteToFile();
-  const blob=new Blob([xlFile.arrayBuffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download=xlFile.name;a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),2000);
-  showToast("Excel file downloaded!");
-  xlSetStatus('<i class="ti ti-check"></i> Saved & downloaded',"ok");
-}
-
-// ── Detach the Excel file ──
-function xlDetach(){
-  if(!confirm("Disconnect Excel file?\n\nAll data will be cleared from memory. Make sure you've downloaded your file first."))return;
-  xlFile=null;
-  // Clear all in-memory data
-  profile={...DEFAULT_PROFILE};
-  expCats=DEFAULT_EXP.map(x=>({...x}));
-  invCats=DEFAULT_INV.map(x=>({...x}));
-  db=initDB();
-  dailyEntries={};
-  startM=null;
-  saveUI();
-  refreshXlPanel();
-  render();
-  showToast("Excel disconnected · Data cleared");
-}
+// ── xlAutoSave: now a no-op (localStorage handles persistence via saveState) ──
+function xlAutoSave(){ /* data auto-saved to localStorage via saveState() */ }
 
 // ── Update status text ──
 function xlSetStatus(html,cls){
@@ -2114,10 +2058,9 @@ function xlSetStatus(html,cls){
   el.className="xl-status"+(cls?" "+cls:"");
 }
 
-// ── Refresh just the panel without full render ──
+// ── noFileBanner: no longer needed, kept as empty stub ──
+function noFileBanner(){return"";}
 function refreshXlPanel(){
-  const el=document.getElementById("xl-panel");
-  if(el)el.innerHTML=renderXlPanel();
 }
 
 // ── Spin keyframe for loader ──
