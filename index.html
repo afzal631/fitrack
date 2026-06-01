@@ -474,6 +474,58 @@ html,body{height:100%;width:100%;background:#0a0a0f;margin:0;padding:0;overflow:
 .fade-in{animation:fadeIn .3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
+/* ─── IMPORT WARNING MODAL ─── */
+.imp-overlay{
+  position:fixed;inset:0;background:#00000090;z-index:9999;
+  display:flex;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(6px);
+  animation:fadeIn .2s ease;
+}
+.imp-modal{
+  background:var(--bg1);border:1px solid var(--bd2);
+  border-radius:22px 22px 0 0;padding:24px 20px 32px;
+  width:100%;max-width:480px;
+}
+.imp-modal-icon{font-size:36px;color:var(--amb);text-align:center;margin-bottom:10px;filter:drop-shadow(0 0 12px var(--amb)50)}
+.imp-modal-title{font-size:16px;font-weight:800;color:var(--t1);text-align:center;margin-bottom:6px}
+.imp-modal-sub{font-size:12px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:18px}
+.imp-modal-warn{
+  background:var(--amb2);border:1px solid var(--amb)30;
+  border-radius:12px;padding:10px 14px;margin-bottom:18px;
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;color:var(--amb);
+}
+.imp-modal-warn i{font-size:16px;flex-shrink:0}
+.imp-dl-btn{
+  width:100%;padding:13px;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  color:#000;border:none;border-radius:13px;
+  font-size:13px;font-weight:800;cursor:pointer;
+  letter-spacing:.02em;transition:all .2s;
+  box-shadow:0 4px 16px var(--acc)40;
+  font-family:'Sora',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.imp-dl-btn:active{transform:scale(.97)}
+.imp-proceed-btn{
+  width:100%;padding:11px;margin-bottom:8px;
+  background:var(--red2);color:var(--red);
+  border:1px solid var(--red)30;border-radius:13px;
+  font-size:12px;font-weight:700;cursor:pointer;
+  letter-spacing:.03em;transition:all .2s;
+  font-family:'Sora',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.imp-proceed-btn:active{transform:scale(.97)}
+.imp-cancel-btn{
+  width:100%;padding:10px;
+  background:transparent;color:var(--t3);
+  border:1px solid var(--bd);border-radius:13px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;font-family:'Sora',sans-serif;
+}
+.imp-cancel-btn:active{transform:scale(.97)}
+
 /* Switch */
 .switch-wrap{display:flex;align-items:center;gap:10px}
 .switch{position:relative;width:42px;height:22px;flex-shrink:0}
@@ -687,10 +739,10 @@ const NOW=new Date();
 const NOW_M=MONTHS[NOW.getMonth()];
 const NOW_DATE=NOW.getDate(); // 1-31
 
-// Default profile
+// Default profile — all fields empty so user fills them in fresh
 const DEFAULT_PROFILE={
-  name:"My Finance",salary:125000,fyStart:"Apr",
-  currency:"₹",goal:3600000,goalLabel:"Property Fund",darkMode:true,
+  name:"",salary:"",fyStart:"Apr",
+  currency:"",goal:"",goalLabel:"",darkMode:true,
 };
 
 const DEFAULT_EXP=[
@@ -765,8 +817,8 @@ function ensureDB(d){
 const ui=loadUI();
 const savedData=loadData();
 let profile=savedData?.profile?{...DEFAULT_PROFILE,...savedData.profile}:{...DEFAULT_PROFILE};
-let expCats=savedData?.expCats||DEFAULT_EXP.map(x=>({...x}));
-let invCats=savedData?.invCats||DEFAULT_INV.map(x=>({...x}));
+let expCats=savedData?.expCats||[];
+let invCats=savedData?.invCats||[];
 let db=savedData?.db?ensureDB(savedData.db):initDB();
 // dailyEntries: { "Jan-5": [{id, cat, desc, amount, time}, ...] }
 let dailyEntries=savedData?.dailyEntries||{};
@@ -780,7 +832,7 @@ let sumSelM=ui.sumSelM||NOW_M;
 let sumSelDate=ui.sumSelDate||null; // null = show all days for selected month
 
 // ─────────────────── HELPERS ───────────────────
-function fmt(n){return(profile.currency||"₹")+Math.round(n).toLocaleString("en-IN")}
+function fmt(n){return(profile.currency||"")+Math.round(n).toLocaleString("en-IN")}
 function pct(a,b){return b?Math.round(a/b*100):0}
 function clamp(v,min,max){return Math.min(Math.max(v,min),max)}
 function daysInMonth(mIdx){return new Date(2025,mIdx+1,0).getDate()} // use 2025 as reference year
@@ -947,11 +999,11 @@ function renderDash(){
     </div>`;
   }
 
-  const SALARY=profile.salary||125000;
+  const SALARY=Number(profile.salary)||0;
   const totE=totalExpM(selM),totI=totalInvM(selM);
   const surplus=SALARY-totE-totI;
   const allInv=allInvSoFar();
-  const goal=profile.goal||3600000;
+  const goal=Number(profile.goal)||0;
   const gPct=clamp(pct(allInv,goal),0,100);
   const idealTotE=totalIdealExp();
   const overBudget=totE>idealTotE;
@@ -1038,7 +1090,7 @@ function renderDash(){
   <!-- Goal progress -->
   <div class="card">
     <div class="card-hdr">
-      <div class="card-hdr-title"><i class="ti ti-home" style="color:var(--acc)"></i>${profile.goalLabel||"Property Goal"}</div>
+      <div class="card-hdr-title"><i class="ti ti-home" style="color:var(--acc)"></i>${profile.goalLabel||""}</div>
       <span class="pill pill-g">${gPct}%</span>
     </div>
     <div class="card-body">
@@ -1091,7 +1143,7 @@ function drawDashCharts(){
   const pieCanvas=document.getElementById("pieChart");
   if(pieCanvas){
     destroyChart("pie");
-    const SALARY=profile.salary||125000;
+    const SALARY=Number(profile.salary)||0;
     const totE=totalExpM(selM),totI=totalInvM(selM);
     const surplus=Math.max(0,SALARY-totE-totI);
     const pieSlices=expCats.map(x=>({label:x.k,val:totalCatM(selM,x.k),col:x.col})).filter(x=>x.val>0);
@@ -1167,7 +1219,7 @@ function drawDashCharts(){
         },
         scales:{
           x:{grid:{color:gridCol},ticks:{color:labelCol,font:{family:"Sora",size:9,weight:"600"},maxRotation:0}},
-          y:{grid:{color:gridCol},ticks:{color:labelCol,font:{family:"JetBrains Mono",size:9},callback:(v)=>(profile.currency||"₹")+Math.round(v/1000)+"k"},beginAtZero:true},
+          y:{grid:{color:gridCol},ticks:{color:labelCol,font:{family:"JetBrains Mono",size:9},callback:(v)=>(profile.currency||"")+Math.round(v/1000)+"k"},beginAtZero:true},
         },
         animation:{duration:700,easing:"easeOutQuart"},
         barPercentage:0.7,
@@ -1326,7 +1378,7 @@ function renderExp(){
 
 // ─────────────────── RENDER INVESTMENTS ───────────────────
 function renderInv(){
-  const SALARY=profile.salary||125000;
+  const SALARY=Number(profile.salary)||0;
   const totD=totalInvDate(selM,selDate);
   const totM=totalInvM(selM);
   const idealTot=totalIdealInv();
@@ -1359,7 +1411,7 @@ function renderInv(){
             <div class="inp-meta">${fmt(mTot)} / target ${fmt(x.target)}</div>
             <div class="pbar"><div class="pfill" style="width:${pbar}%;background:${over?"var(--acc)":x.col}"></div></div>
           </div>
-          <input class="finp" type="number" min="0" placeholder="0" value="${val||""}"
+          <input class="finp" type="number" min="0" placeholder="0" value="${val!==undefined&&val!==null?val:0}"
             data-t="inv" data-m="${selM}" data-d="${selDate}" data-k="${x.k}">
         </div>`;
       }).join("")}
@@ -1389,7 +1441,7 @@ function renderInv(){
 
 // ─────────────────── RENDER SUMMARY ───────────────────
 function renderSum(){
-  const SALARY=profile.salary||125000;
+  const SALARY=Number(profile.salary)||0;
   const annE=MONTHS.reduce((s,m)=>s+totalExpM(m),0);
   const annI=MONTHS.reduce((s,m)=>s+totalInvM(m),0);
   const annSur=SALARY*12-annE-annI;
@@ -1496,7 +1548,7 @@ function renderSum(){
 
 // ─────────────────── RENDER PROFILE ───────────────────
 function renderProfile(){
-  const SALARY=profile.salary||125000;
+  const SALARY=Number(profile.salary)||0;
   const totalLim=totalIdealExp();
   const totalTgt=totalIdealInv();
   const leftover=SALARY-totalLim-totalTgt;
@@ -1514,12 +1566,12 @@ function renderProfile(){
         <div class="profile-field">
           <div class="ico" style="background:var(--acc3)"><i class="ti ti-currency-rupee" style="color:var(--acc)"></i></div>
           <div class="pf-info"><div class="pf-label">Monthly Salary</div><div class="pf-desc">Take-home amount</div></div>
-          <input class="pf-input" type="number" value="${profile.salary||""}" placeholder="125000" onchange="profile.salary=Math.max(0,Number(this.value));saveState();showToast('Salary updated');render()">
+          <input class="pf-input" type="number" value="${profile.salary||""}" placeholder="e.g. 50000" onchange="profile.salary=this.value?Math.max(0,Number(this.value)):'';saveState();showToast('Salary updated');render()">
         </div>
         <div class="profile-field">
           <div class="ico" style="background:var(--blu2)"><i class="ti ti-home" style="color:var(--blu)"></i></div>
           <div class="pf-info"><div class="pf-label">Financial Goal</div><div class="pf-desc">Total target amount</div></div>
-          <input class="pf-input" type="number" value="${profile.goal||""}" placeholder="3600000" onchange="profile.goal=Math.max(0,Number(this.value));saveState();showToast('Goal updated')">
+          <input class="pf-input" type="number" value="${profile.goal||""}" placeholder="e.g. 1000000" onchange="profile.goal=this.value?Math.max(0,Number(this.value)):'';saveState();showToast('Goal updated')">
         </div>
         <div class="profile-field">
           <div class="ico" style="background:var(--blu2)"><i class="ti ti-tag" style="color:var(--blu)"></i></div>
@@ -1545,7 +1597,7 @@ function renderProfile(){
         <div class="profile-field">
           <div class="ico" style="background:${x.col}20"><i class="ti ${x.ic}" style="color:${x.col}"></i></div>
           <div class="pf-info"><div class="pf-label">${x.k}</div><div class="pf-desc">Monthly limit</div></div>
-          <input class="pf-input" type="number" value="${x.limit||""}" placeholder="0"
+          <input class="pf-input" type="number" value="${x.limit!==undefined&&x.limit!==null&&x.limit!==""?x.limit:0}" placeholder="0"
             oninput="expCats[${i}].limit=Math.max(0,Number(this.value));saveState();updateBudgetAlloc();xlAutoSave();"
             onchange="showToast('Limit updated')">
           <div class="btn-del" onclick="deleteExpCat(${i})"><i class="ti ti-trash"></i></div>
@@ -1568,7 +1620,7 @@ function renderProfile(){
         <div class="profile-field">
           <div class="ico" style="background:${x.col}20"><i class="ti ${x.ic}" style="color:${x.col}"></i></div>
           <div class="pf-info"><div class="pf-label">${x.k}</div><div class="pf-desc">Monthly target</div></div>
-          <input class="pf-input" type="number" value="${x.target||""}" placeholder="0"
+          <input class="pf-input" type="number" value="${x.target!==undefined&&x.target!==null&&x.target!==""?x.target:0}" placeholder="0"
             oninput="invCats[${i}].target=Math.max(0,Number(this.value));saveState();updateBudgetAlloc();xlAutoSave();"
             onchange="showToast('Target updated')">
           <div class="btn-del" onclick="deleteInvCat(${i})"><i class="ti ti-trash"></i></div>
@@ -1663,16 +1715,81 @@ function addInvCat(){
   saveState();xlAutoSave();showToast(`"${name}" added`);render();
 }
 function deleteExpCat(i){
-  if(!confirm(`Remove "${expCats[i].k}"?`))return;
-  expCats.splice(i,1);saveState();xlAutoSave();showToast("Category removed");render();
+  document.getElementById("del-overlay")?.remove();
+  const overlay=document.createElement("div");
+  overlay.className="imp-overlay";
+  overlay.id="del-overlay";
+  overlay.innerHTML=`
+    <div class="imp-modal">
+      <div class="imp-modal-icon"><i class="ti ti-trash" style="color:var(--red)"></i></div>
+      <div class="imp-modal-title">Remove "${expCats[i].k}"?</div>
+      <div class="imp-modal-sub">This expense category and its limit will be removed. Past entries with this category will remain in your data.</div>
+      <button class="imp-proceed-btn" onclick="document.getElementById('del-overlay')?.remove();expCats.splice(${i},1);saveState();showToast('Category removed');render()">
+        <i class="ti ti-trash"></i>Remove category
+      </button>
+      <button class="imp-cancel-btn" onclick="document.getElementById('del-overlay')?.remove()">Cancel</button>
+    </div>`;
+  document.body.appendChild(overlay);
 }
 function deleteInvCat(i){
-  if(!confirm(`Remove "${invCats[i].k}"?`))return;
-  invCats.splice(i,1);saveState();xlAutoSave();showToast("Removed");render();
+  document.getElementById("del-overlay")?.remove();
+  const overlay=document.createElement("div");
+  overlay.className="imp-overlay";
+  overlay.id="del-overlay";
+  overlay.innerHTML=`
+    <div class="imp-modal">
+      <div class="imp-modal-icon"><i class="ti ti-trash" style="color:var(--red)"></i></div>
+      <div class="imp-modal-title">Remove "${invCats[i].k}"?</div>
+      <div class="imp-modal-sub">This investment category and its target will be removed.</div>
+      <button class="imp-proceed-btn" onclick="document.getElementById('del-overlay')?.remove();invCats.splice(${i},1);saveState();showToast('Removed');render()">
+        <i class="ti ti-trash"></i>Remove category
+      </button>
+      <button class="imp-cancel-btn" onclick="document.getElementById('del-overlay')?.remove()">Cancel</button>
+    </div>`;
+  document.body.appendChild(overlay);
 }
 function confirmReset(){
-  if(!confirm("Reset ALL data? This cannot be undone."))return;
-  db=initDB();dailyEntries={};startM=null;saveUI();xlAutoSave();showToast("All data reset");render();
+  // Use custom modal — window.confirm is blocked in PWA/standalone mode on iOS
+  document.getElementById("reset-overlay")?.remove();
+  const overlay=document.createElement("div");
+  overlay.className="imp-overlay";
+  overlay.id="reset-overlay";
+  overlay.innerHTML=`
+    <div class="imp-modal">
+      <div class="imp-modal-icon"><i class="ti ti-trash" style="color:var(--red)"></i></div>
+      <div class="imp-modal-title" style="color:var(--red)">Reset All Data?</div>
+      <div class="imp-modal-sub">This will permanently delete all your expenses, investments, categories, and profile settings. This <strong style="color:var(--red)">cannot be undone</strong>.</div>
+      <div class="imp-modal-warn" style="background:var(--red2);border-color:var(--red)30;color:var(--red)">
+        <i class="ti ti-alert-circle"></i>All data will be lost and the app will return to defaults.
+      </div>
+      <button class="imp-proceed-btn" onclick="doReset()" style="background:var(--red2);color:var(--red);border-color:var(--red)30">
+        <i class="ti ti-trash"></i>Yes, reset everything
+      </button>
+      <button class="imp-cancel-btn" onclick="document.getElementById('reset-overlay')?.remove()">Cancel</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function doReset(){
+  document.getElementById("reset-overlay")?.remove();
+  // Reset ALL in-memory state to empty defaults
+  profile={...DEFAULT_PROFILE};
+  expCats=[];
+  invCats=[];
+  db=initDB();
+  dailyEntries={};
+  startM=null;
+  selM=NOW_M;
+  selDate=NOW_DATE;
+  sumSelM=NOW_M;
+  sumSelDate=null;
+  // Wipe localStorage completely
+  try{localStorage.removeItem(UI_KEY);}catch(e){}
+  try{localStorage.removeItem(DATA_KEY);}catch(e){}
+  // Persist fresh empty state
+  saveState();
+  showToast("All data reset");
+  render();
 }
 
 // ─────────────────── BIND INPUTS ───────────────────
@@ -1851,7 +1968,7 @@ function changeInvDate(d){selDate=d;saveUI();render();}
 
 // ─────────────────── LIVE BUDGET ALLOCATION UPDATE ───────────────────
 function updateBudgetAlloc(){
-  const SALARY=profile.salary||125000;
+  const SALARY=Number(profile.salary)||0;
   const totalLim=totalIdealExp();
   const totalTgt=totalIdealInv();
   const leftover=SALARY-totalLim-totalTgt;
@@ -1884,26 +2001,77 @@ function xlDrop(e){
   e.preventDefault();
   document.getElementById("xl-drop")?.classList.remove("drag");
   const file=e.dataTransfer?.files?.[0];
-  if(file) xlLoad(file);
+  if(file) xlShowImportWarning(file);
 }
-function xlFileChosen(e){const file=e.target?.files?.[0];if(file)xlLoad(file);}
+function xlFileChosen(e){
+  const file=e.target?.files?.[0];
+  // Reset the input so the same file can be re-selected after cancel
+  e.target.value="";
+  if(file) xlShowImportWarning(file);
+}
 
-// ── Import from Excel file ──
-function xlLoad(file){
+// ── Show warning modal before importing ──
+let _pendingImportFile=null;
+function xlShowImportWarning(file){
   if(!file.name.match(/\.xlsx$/i)){
     showToast("Only .xlsx files allowed");
     xlSetStatus("Only .xlsx files are accepted","err");
     return;
   }
+  _pendingImportFile=file;
+  // Remove any existing modal
+  document.getElementById("imp-overlay")?.remove();
+  const overlay=document.createElement("div");
+  overlay.className="imp-overlay";
+  overlay.id="imp-overlay";
+  overlay.innerHTML=`
+    <div class="imp-modal">
+      <div class="imp-modal-icon"><i class="ti ti-alert-triangle"></i></div>
+      <div class="imp-modal-title">Import Excel Data?</div>
+      <div class="imp-modal-sub">You are about to import <strong style="color:var(--t1)">${file.name}</strong>. This will <strong style="color:var(--red)">replace all your current data</strong>.</div>
+      <div class="imp-modal-warn"><i class="ti ti-alert-circle"></i>Warning: importing this file will permanently overwrite your current entries.</div>
+      <button class="imp-dl-btn" onclick="xlExportThenProceed()">
+        <i class="ti ti-download"></i>Download current data first
+      </button>
+      <button class="imp-proceed-btn" onclick="xlConfirmImport()">
+        <i class="ti ti-upload"></i>Import anyway (discard current data)
+      </button>
+      <button class="imp-cancel-btn" onclick="xlCancelImport()">Cancel</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function xlExportThenProceed(){
+  // Download current data, then allow import
+  xlExport();
+  // After a short delay to let download trigger, close modal and proceed
+  setTimeout(()=>{
+    document.getElementById("imp-overlay")?.remove();
+    if(_pendingImportFile) xlLoad(_pendingImportFile);
+  },600);
+}
+function xlConfirmImport(){
+  document.getElementById("imp-overlay")?.remove();
+  if(_pendingImportFile) xlLoad(_pendingImportFile);
+}
+function xlCancelImport(){
+  document.getElementById("imp-overlay")?.remove();
+  _pendingImportFile=null;
+  xlSetStatus("Import cancelled","");
+}
+
+// ── Import from Excel file (called only after user confirms) ──
+function xlLoad(file){
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
       const ab=ev.target.result;
       const wb=XLSX.read(ab,{type:"array"});
       if(wb.SheetNames.includes(XL_SHEET_EXPENSES)||wb.SheetNames.includes(XL_SHEET_META)){
-        // Import directly — no reset, data from Excel is loaded as-is
+        // ── RESET current state before importing to prevent data merge ──
+        db=initDB();
+        dailyEntries={};
         xlImportFromWorkbook(wb);
-        saveState(); // persist imported data to localStorage immediately
+        saveState();
         showToast("Excel data loaded!");
         xlSetStatus('<i class="ti ti-check"></i> Data loaded from Excel and saved to device',"ok");
         render();
@@ -2025,19 +2193,45 @@ function xlBuildWorkbook(){
   return wb;
 }
 
-// ── Export: download current data as Excel ──
-function xlExport(){
+// ── Export: download current data as Excel (mobile-compatible) ──
+async function xlExport(){
   try{
     const wb=xlBuildWorkbook();
     const ab=XLSX.write(wb,{bookType:"xlsx",type:"array"});
     const blob=new Blob([ab],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement("a");
     const ts=new Date().toISOString().slice(0,10);
-    a.href=url;a.download="FinTrack_"+ts+".xlsx";a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),2000);
-    showToast("Excel exported!");
-    xlSetStatus('<i class="ti ti-check"></i> Exported successfully',"ok");
+    const fileName="FinTrack_"+ts+".xlsx";
+
+    // ── Try Web Share API first (works on iOS Safari & Android Chrome) ──
+    if(navigator.canShare && navigator.canShare({files:[new File([blob],fileName,{type:blob.type})]})){
+      try{
+        await navigator.share({
+          files:[new File([blob],fileName,{type:blob.type})],
+          title:"FinTrack Export"
+        });
+        showToast("Excel shared!");
+        xlSetStatus('<i class="ti ti-check"></i> File ready to save',"ok");
+        return;
+      }catch(shareErr){
+        // User cancelled share or share failed — fall through to download
+        if(shareErr.name==="AbortError")return; // user cancelled, don't show error
+      }
+    }
+
+    // ── Fallback: base64 data URI (works when object URLs fail on mobile) ──
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const dataUrl=reader.result;
+      const a=document.createElement("a");
+      a.href=dataUrl;
+      a.download=fileName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>document.body.removeChild(a),1000);
+      showToast("Excel exported!");
+      xlSetStatus('<i class="ti ti-check"></i> Exported — check your Downloads folder',"ok");
+    };
+    reader.readAsDataURL(blob);
   }catch(e){showToast("Export failed");xlSetStatus("Export error: "+e.message,"err");}
 }
 
