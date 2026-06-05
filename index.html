@@ -743,6 +743,8 @@ const NOW_DATE=NOW.getDate(); // 1-31
 const DEFAULT_PROFILE={
   name:"",salary:"",fyStart:"Apr",
   currency:"",goal:"",goalLabel:"",darkMode:true,
+  balance:"",          // current account balance — user sets manually
+  salaryDay:1,         // which day of month salary arrives (default 1st)
 };
 
 const DEFAULT_EXP=[
@@ -889,7 +891,35 @@ function totalIdealExp(){return expCats.reduce((s,x)=>s+(x.limit||0),0)}
 function totalIdealInv(){return invCats.reduce((s,x)=>s+(x.target||0),0)}
 function allInvSoFar(){return MONTHS.reduce((s,m)=>s+totalInvM(m),0)}
 
-// ─────────────────── THEME ───────────────────
+// ─── BALANCE COMPUTATION ───
+// Base balance = user's manually entered balance (what they had when they started tracking)
+// Live balance = base balance + (salary × months elapsed since start) - all expenses - all investments
+function computeBalance(){
+  const base=Number(profile.balance)||0;
+  const SALARY=Number(profile.salary)||0;
+  if(!startM) return base;
+
+  // Count how many months have elapsed from startM up to and including selM
+  const startIdx=MONTHS.indexOf(startM);
+  const curIdx=MONTHS.indexOf(selM);
+  // Months elapsed = distance from start to current (circular 12-month year)
+  let monthsElapsed=(curIdx-startIdx+12)%12+1;
+
+  // Total salary credited = salary × months elapsed
+  const totalSalary=SALARY*monthsElapsed;
+
+  // Total spent and invested across all elapsed months
+  let totalExp=0, totalInv=0;
+  for(let i=0;i<monthsElapsed;i++){
+    const m=MONTHS[(startIdx+i)%12];
+    totalExp+=totalExpM(m);
+    totalInv+=totalInvM(m);
+  }
+
+  return base+totalSalary-totalExp-totalInv;
+}
+
+
 function applyTheme(){
   const r=document.documentElement;
   if(!dark){
@@ -1007,6 +1037,8 @@ function renderDash(){
   const gPct=clamp(pct(allInv,goal),0,100);
   const idealTotE=totalIdealExp();
   const overBudget=totE>idealTotE;
+  const liveBalance=computeBalance();
+  const hasBalance=profile.balance!==""&&profile.balance!==null&&profile.balance!==undefined;
 
   // Pie chart data — expense categories with actual spend
   const pieData=expCats.map(x=>({label:x.k,val:totalCatM(selM,x.k),col:x.col})).filter(x=>x.val>0);
@@ -1032,6 +1064,39 @@ function renderDash(){
     <div class="month-nav-label">${selM} Overview</div>
     <button class="month-nav-btn" onclick="selM=MONTHS[(MONTHS.indexOf(selM)+1)%12];render()"><i class="ti ti-chevron-right"></i></button>
   </div>
+
+  <!-- Balance card — prominent at top -->
+  ${hasBalance?`
+  <div class="card" style="margin-bottom:10px;border-color:${liveBalance>=0?"var(--acc)":"var(--red)"}50">
+    <div class="card-body" style="padding:14px">
+      <div class="kpi-lbl" style="margin-bottom:6px">Current Balance</div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px">
+        <div>
+          <div class="kpi-val ${liveBalance>=0?"g":"r"}" style="font-size:28px">${fmt(Math.abs(liveBalance))}</div>
+          <div class="kpi-sub" style="margin-top:5px">${liveBalance>=0?"✓ Available in account":"⚠ Overspent"} · live</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;text-align:right;flex-shrink:0">
+          <span style="font-size:10px;color:var(--t3);font-weight:600">This month</span>
+          <span style="font-size:11px;font-weight:700;color:var(--red);font-family:'JetBrains Mono',monospace">−${fmt(totE)}</span>
+          <span style="font-size:11px;font-weight:700;color:var(--pur);font-family:'JetBrains Mono',monospace">−${fmt(totI)}</span>
+          <div style="height:1px;background:var(--bd);margin:1px 0"></div>
+          <span style="font-size:11px;font-weight:700;color:${surplus>=0?"var(--acc)":"var(--red)"};font-family:'JetBrains Mono',monospace">${surplus>=0?"+":"−"}${fmt(Math.abs(surplus))}</span>
+        </div>
+      </div>
+    </div>
+  </div>`:`
+  <div class="card" style="margin-bottom:10px;border:1px dashed var(--bd2);background:transparent">
+    <div class="card-body" style="padding:14px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div class="ico" style="background:var(--bg3);flex-shrink:0"><i class="ti ti-wallet" style="color:var(--t3)"></i></div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1)">Track your balance</div>
+          <div class="kpi-sub" style="margin-top:2px">Enter your current balance to see it update live as you log expenses</div>
+        </div>
+      </div>
+      <button class="btn-sec" style="margin-bottom:0;display:flex;align-items:center;justify-content:center" onclick="go(4)"><i class="ti ti-settings" style="margin-right:6px"></i>Set up in Profile</button>
+    </div>
+  </div>`}
 
   <!-- KPI grid -->
   <div class="g4">
@@ -1566,7 +1631,17 @@ function renderProfile(){
         <div class="profile-field">
           <div class="ico" style="background:var(--acc3)"><i class="ti ti-currency-rupee" style="color:var(--acc)"></i></div>
           <div class="pf-info"><div class="pf-label">Monthly Salary</div><div class="pf-desc">Take-home amount</div></div>
-          <input class="pf-input" type="number" value="${profile.salary||""}" placeholder="e.g. 50000" onchange="profile.salary=this.value?Math.max(0,Number(this.value)):'';saveState();showToast('Salary updated');render()">
+          <input class="pf-input" type="number" value="${profile.salary||""}" placeholder="e.g. 125000" onchange="profile.salary=this.value?Math.max(0,Number(this.value)):'';saveState();showToast('Salary updated');render()">
+        </div>
+        <div class="profile-field">
+          <div class="ico" style="background:var(--acc3)"><i class="ti ti-wallet" style="color:var(--acc)"></i></div>
+          <div class="pf-info"><div class="pf-label">Current Balance</div><div class="pf-desc">What's in your account now</div></div>
+          <input class="pf-input" type="number" value="${profile.balance||""}" placeholder="e.g. 45000" onchange="profile.balance=this.value?Number(this.value):'';saveState();showToast('Balance updated');render()">
+        </div>
+        <div class="profile-field">
+          <div class="ico" style="background:var(--acc3)"><i class="ti ti-calendar-due" style="color:var(--acc)"></i></div>
+          <div class="pf-info"><div class="pf-label">Salary Credit Day</div><div class="pf-desc">Which date salary arrives</div></div>
+          <input class="pf-input" type="number" min="1" max="31" value="${profile.salaryDay||1}" placeholder="1" onchange="profile.salaryDay=Math.min(31,Math.max(1,Number(this.value)||1));saveState();showToast('Saved');render()">
         </div>
         <div class="profile-field">
           <div class="ico" style="background:var(--blu2)"><i class="ti ti-home" style="color:var(--blu)"></i></div>
